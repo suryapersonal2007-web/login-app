@@ -1,7 +1,8 @@
 import { useState } from "react";
 import "./App.css";
 
-const API_URL = "https://login-i7wy.onrender.com/";
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 function App() {
   // =====================================================
@@ -505,6 +506,58 @@ function App() {
   };
 
   // =====================================================
+  // DOWNLOAD USERS
+  // =====================================================
+
+  const downloadUsers = async () => {
+    try {
+      if (!adminToken) {
+        alert("Admin login required");
+        return;
+      }
+
+      const response = await fetch(
+        `${API_URL}/api/admin/users/download`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        let data = null;
+
+        try {
+          data = await response.json();
+        } catch {
+          // Ignore non-JSON error responses
+        }
+
+        alert(data?.message || "Failed to download users");
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "users.csv";
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download users error:", error);
+      alert("Cannot connect to backend.");
+    }
+  };
+
+  // =====================================================
   // DELETE USER
   // =====================================================
 
@@ -703,6 +756,15 @@ function App() {
                 }}
               >
                 + Add User
+              </button>
+
+              {" "}
+
+              <button
+                className="save-button"
+                onClick={downloadUsers}
+              >
+                Download Users
               </button>
             </div>
           </div>
