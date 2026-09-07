@@ -5,8 +5,7 @@ const db = require("../db");
 
 const router = express.Router();
 
-const JWT_SECRET = "your_secret_key_change_this";
-
+const JWT_SECRET = process.env.JWT_SECRET
 // =====================================================
 // ADMIN LOGIN
 // POST /api/admin/login
